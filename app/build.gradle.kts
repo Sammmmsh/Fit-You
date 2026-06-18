@@ -48,7 +48,7 @@ android {
         kotlinCompilerExtensionVersion = "1.5.3"
     }
 
-    packaging {
+        packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
@@ -81,9 +81,10 @@ dependencies {
     implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
 
     // Firebase
-    implementation(platform("com.google.firebase:firebase-bom:30.0.1"))
-    implementation("com.google.firebase:firebase-firestore-ktx")
-    implementation("com.google.firebase:firebase-auth-ktx")
+    implementation(platform("com.google.firebase:firebase-bom:32.8.0"))
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-firestore")
+    implementation("com.google.firebase:firebase-auth")
 
     // Google OAuth
     implementation("com.google.android.gms:play-services-auth:20.5.0")

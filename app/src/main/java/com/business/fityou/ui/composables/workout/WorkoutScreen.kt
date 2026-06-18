@@ -163,8 +163,12 @@ fun WorkoutScreen(
             }
         }
 
-        if(workoutState.exerciseItems?.size!! > 0)
-        exerciseProgress = "${currentSetItemIndex + 1}/${workoutState.exerciseItems?.size}"
+        val workout = if (isWorkoutStarted) ongoingWorkout else workoutState
+        workout.exerciseItems?.let {
+            if (it.size > 0) {
+                exerciseProgress = "${currentSetItemIndex + 1}/${it.size}"
+            }
+        }
 
         Column(
             Modifier
@@ -220,9 +224,8 @@ fun WorkoutScreen(
                         val serviceIntent = Intent(context, WorkoutTimerService::class.java)
                         context.stopService(serviceIntent)
                         serviceIntent.putExtra(TIMER_RUNNING, false)
-                        timerText = "00:00:00"
-                        updateWorkout()
                         stopWorkout()
+                        resetTimer()
                         getWorkouts()
                         Toast.makeText(context, "workout completed!", Toast.LENGTH_SHORT).show()
                     } else {

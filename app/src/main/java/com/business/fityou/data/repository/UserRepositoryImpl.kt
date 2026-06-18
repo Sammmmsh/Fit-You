@@ -7,8 +7,8 @@ import android.content.SharedPreferences
 import android.util.Log
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.Firebase
+import com.google.firebase.firestore.firestore
 import com.business.fityou.data.models.User
 import com.business.fityou.data.models.states.AuthState
 import com.business.fityou.domain.GoogleAuthClient

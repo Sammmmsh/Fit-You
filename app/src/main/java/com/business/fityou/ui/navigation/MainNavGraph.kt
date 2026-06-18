@@ -40,6 +40,7 @@ import com.business.fityou.ui.composables.stats.StatsScreen
 import com.business.fityou.ui.composables.workout.WorkoutDetailScreen
 import com.business.fityou.ui.composables.workout.WorkoutPlanSetUpScreen
 import com.business.fityou.ui.composables.workout.WorkoutScreen
+import com.business.fityou.ui.composables.meal.MealScreen
 import com.business.fityou.ui.theme.veryDarkBlue
 import com.business.fityou.viewmodel.SettingsViewModel
 import com.business.fityou.viewmodel.UserViewModel
@@ -73,10 +74,7 @@ fun NavGraphBuilder.mainNavGraph(
         composable(
             route = Screens.Profile.route
         ) {
-            /*
-            TODO: PROFILE SCREEN
-             */
-            ProfileScreen(userViewModel::logOut)
+            ProfileScreen(userViewModel = userViewModel, workoutViewModel = workoutViewModel)
             bottomBarState.value = true
         }
 
@@ -116,6 +114,11 @@ fun NavGraphBuilder.mainNavGraph(
             bottomBarState.value = true
         }
 
+        composable(route = Screens.Meal.route) {
+            MealScreen(navController = navController, workoutViewModel = workoutViewModel)
+            bottomBarState.value = true
+        }
+
         composable(route = Screens.Search.route) {
             SearchScreen(navController = navController)
             bottomBarState.value = true
@@ -146,7 +149,7 @@ fun BottomNavBar(
     val screens = listOf(
         Screens.Home,
         Screens.Exercises,
-        Screens.Search,
+        Screens.Meal,
         Screens.Profile,
         Screens.Settings
     )

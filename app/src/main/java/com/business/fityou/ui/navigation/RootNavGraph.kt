@@ -13,6 +13,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.business.fityou.ui.theme.darkBlue
 import com.business.fityou.viewmodel.SettingsViewModel
@@ -38,10 +39,13 @@ fun RootNavGraph(
         MAIN_ROUTE -> bottomBarState.value = true
     }
 
-    LaunchedEffect(Unit) { 
-        userViewModel.checkLoginState() 
-        navController.navigate(MAIN_ROUTE) {
-            popUpTo(navController.graph.id) { inclusive = true }
+    LaunchedEffect(Unit) { userViewModel.checkLoginState() }
+    LaunchedEffect(userViewModel.signInState) {
+        if (userViewModel.signInState.success) navController.navigate(MAIN_ROUTE) {
+            popUpTo(ROOT_ROUTE) { inclusive = true }
+        }
+        else navController.navigate(LOGIN_ROUTE) {
+            popUpTo(ROOT_ROUTE) { inclusive = true }
         }
     }
 
@@ -49,7 +53,10 @@ fun RootNavGraph(
         scaffoldState = scaffoldState,
         modifier = Modifier.fillMaxSize(),
         bottomBar = {
-            BottomNavBar(navController = navController, bottomBarState)
+            when (bottomBarState.value) {
+                true -> BottomNavBar(navController = navController, bottomBarState)
+                false -> {}
+            }
         },
         backgroundColor = MaterialTheme.colors.background,
 
@@ -57,12 +64,17 @@ fun RootNavGraph(
 
         NavHost(
             navController = navController,
-            startDestination = MAIN_ROUTE,
+            startDestination = LOGIN_ROUTE,
             route = ROOT_ROUTE,
             modifier = Modifier.padding(it)
         )
         {
-
+            loginNavGraph(
+                navController = navController,
+                bottomBarState,
+                userViewModel,
+                scaffoldState
+            )
             mainNavGraph(
                 navController = navController,
                 bottomBarState,
@@ -71,7 +83,6 @@ fun RootNavGraph(
                 settingsViewModel,
                 scaffoldState
             )
-
         }
     }
 

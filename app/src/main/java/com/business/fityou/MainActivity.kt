@@ -39,8 +39,8 @@ class MainActivity : ComponentActivity() {
     private val updateTime: BroadcastReceiver = object : BroadcastReceiver() {
 
         override fun onReceive(context: Context, intent: Intent) {
-            timeElapsed = intent.getDoubleExtra(WorkoutTimerService.TIME_ELAPSED, 0.0)
-            workoutViewModel.timerText = getTimeStringFromDouble(timeElapsed)
+            val time = intent.getDoubleExtra(WorkoutTimerService.TIME_ELAPSED, 0.0)
+            workoutViewModel.timeElapsed = time
         }
 
     }

@@ -28,7 +28,7 @@ class UserViewModel @Inject constructor(
 
     // This is basically auth.currentUser. It also gets the data if user already
     //      signed in on startup.
-    var signInState by mutableStateOf(AuthState(success = true, uid = "guest_user"))
+    var signInState by mutableStateOf(AuthState())
         private set
 
     var user by mutableStateOf(User())
@@ -149,10 +149,13 @@ class UserViewModel @Inject constructor(
     }
 
     fun checkLoginState() {
-        signInState = AuthState(
-            success = true,
-            uid = "guest_user"
-        )
+        repository.getCurrentUser()?.let {
+            signInState = AuthState(
+                success = true,
+                uid = it.uid,
+                data = it
+            )
+        }
     }
 
     fun isFirstTime(): Boolean = repository.isFirstTime()

@@ -11,29 +11,21 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Icon
-import androidx.compose.material.LinearProgressIndicator
-import androidx.compose.material.MaterialTheme.colors
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.CircleNotifications
+import androidx.compose.material.icons.rounded.Person
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.BlendMode.Companion.Screen
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.font.FontWeight.Companion.ExtraBold
@@ -47,31 +39,37 @@ import com.business.fityou.ui.composables.common.MealsList
 import com.business.fityou.R
 import com.business.fityou.domain.product.Statistic
 import com.business.fityou.ui.navigation.Screens
-/*
+import com.business.fityou.viewmodel.UserViewModel
+import com.business.fityou.viewmodel.WorkoutViewModel
+
 @Composable
-fun HomeScreen(navController: NavController, viewModel: MealViewModel = hiltViewModel()) {
+fun MealScreen(
+    navController: NavController,
+    viewModel: MealViewModel = hiltViewModel(),
+    workoutViewModel: WorkoutViewModel
+) {
     val products by viewModel.products.collectAsState(initial = emptyList())
     val stats by  viewModel.stats.collectAsState()
-
-    var fabState by remember { mutableStateOf(MultiFabState.COLLAPSED) }
+    val user = workoutViewModel.user
 
     Scaffold(
-        backgroundColor = colors.background,
+        backgroundColor = MaterialTheme.colors.background,
         modifier = Modifier.fillMaxSize(),
         floatingActionButton = {
-            HomeFloatingActionButton(navController) {
-                fabState = it
+            FloatingActionButton(
+                onClick = { navController.navigate(Screens.Search.route) },
+                backgroundColor = MaterialTheme.colors.primary
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Add Meal")
             }
         }
-    ) {
-        val alpha = if (fabState == MultiFabState.EXPANDED) 0.3f else 1f
-
+    ) { padding ->
         LazyColumn(
             modifier = Modifier
+                .padding(padding)
                 .padding(horizontal = 16.dp)
-                .alpha(animateFloatAsState(alpha).value)
         ) {
-            item { HomeHeader(navController) }
+            item { HomeHeader(navController, user?.userName ?: "User") }
             item { Spacer(modifier = Modifier.size(25.dp)) }
             item { CaloriesProgress(stats) }
             item { Spacer(modifier = Modifier.size(25.dp)) }
@@ -86,24 +84,7 @@ fun HomeScreen(navController: NavController, viewModel: MealViewModel = hiltView
 }
 
 @Composable
-fun HomeFloatingActionButton(navController: NavController, onStateChanged: (MultiFabState) -> Unit ) {
-    MultiFloatingActionButton(
-        fabIcon = Icons.Filled.Add,
-        items = listOf(
-            FabItem(Icons.Filled.QrCodeScanner, stringResource(R.string.home_fab_scan_product)) {
-                navController.navigate(Screens.Scan.route)
-            },
-            FabItem(Icons.Default.Search, stringResource(R.string.home_fab_search_product)) {
-                navController.navigate(Screens.Search.route)
-            }
-        ),
-        showLabels = false,
-        onStateChanged = { onStateChanged(it) }
-    )
-}
-
-@Composable
-fun HomeHeader(navController: NavController) {
+fun HomeHeader(navController: NavController, userName: String) {
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
@@ -115,22 +96,21 @@ fun HomeHeader(navController: NavController) {
             horizontalArrangement = Arrangement.spacedBy(10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Image(
-                painter = rememberImagePainter("https://images.pexels.com/photos/2531553/pexels-photo-2531553.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"),
+            Icon(
+                imageVector = Icons.Rounded.Person,
                 contentDescription = stringResource(R.string.home_header_user_photo),
-                contentScale = ContentScale.Crop,
+                tint = MaterialTheme.colors.onSurface,
                 modifier = Modifier
                     .size(45.dp)
                     .clip(CircleShape)
-                    .border(1.5.dp, colors.onSurface, CircleShape)
+                    .border(1.5.dp, MaterialTheme.colors.onSurface, CircleShape)
                     .clickable {
-                        navController.navigate(Screen.Settings.route)
+                        navController.navigate(Screens.Profile.route)
                     }
             )
             Column(verticalArrangement = Arrangement.spacedBy((-4).dp, Alignment.CenterVertically)) {
-                //TODO : set user's name
-                Text(text = stringResource(R.string.home_header_welcome), fontSize = 14.sp, color = colors.onBackground)
-                Text(text = "Jonathan Doe", fontSize = 18.sp, fontWeight = ExtraBold, color = colors.onBackground)
+                Text(text = stringResource(R.string.home_header_welcome), fontSize = 14.sp, color = MaterialTheme.colors.onBackground)
+                Text(text = userName, fontSize = 18.sp, fontWeight = ExtraBold, color = MaterialTheme.colors.onBackground)
             }
         }
         Icon(
@@ -145,7 +125,6 @@ fun HomeHeader(navController: NavController) {
 
 @Composable
 fun CaloriesProgress(stats: Statistic) {
-    //TODO : use preferences for max calories
     val left = 2500 - stats.totalCalories
 
     val progress: Float by animateFloatAsState(
@@ -156,8 +135,8 @@ fun CaloriesProgress(stats: Statistic) {
     Column(verticalArrangement = Arrangement.Center) {
         LinearProgressIndicator(
             progress = progress,
-            color = colors.primary,
-            backgroundColor = colors.surface,
+            color = MaterialTheme.colors.primary,
+            backgroundColor = MaterialTheme.colors.surface,
             modifier = Modifier
                 .fillMaxWidth()
                 .size(20.dp)
@@ -173,9 +152,8 @@ fun CaloriesProgress(stats: Statistic) {
                 .padding(4.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(text = stringResource(R.string.home_stats_calories_total, stats.totalCalories), fontSize = 13.sp, fontWeight = Bold, color = colors.onBackground)
-            Text(text = stringResource(R.string.home_stats_calories_left, left), fontSize = 13.sp, fontWeight = Bold, color = colors.onBackground)
+            Text(text = stringResource(R.string.home_stats_calories_total, stats.totalCalories), fontSize = 13.sp, fontWeight = Bold, color = MaterialTheme.colors.onBackground)
+            Text(text = stringResource(R.string.home_stats_calories_left, left), fontSize = 13.sp, fontWeight = Bold, color = MaterialTheme.colors.onBackground)
         }
     }
-}*/
-
+}

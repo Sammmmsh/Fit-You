@@ -43,6 +43,7 @@ import com.business.fityou.util.DifficultyLevels
 fun TrainingCard(
     modifier: Modifier,
     workoutPlan: WorkoutPlan,
+    currentDuration: Int? = null,
     onClick: () -> Unit
 ) {
 
@@ -79,7 +80,7 @@ fun TrainingCard(
                 WorkoutInfo(
                     modifier = Modifier
                         .paddingFromBaseline(bottom = 20.dp),
-                    duration = workoutPlan.duration.toString(),
+                    duration = (currentDuration ?: workoutPlan.duration).toString(),
                     difficulty = workoutPlan.difficulty!!,
 
                     )

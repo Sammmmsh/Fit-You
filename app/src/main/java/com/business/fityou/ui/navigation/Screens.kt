@@ -54,7 +54,8 @@ sealed class Screens(
         Screens(route = "settings", title = R.string.settings, icon = Icons.Rounded.Settings)
 
 
-    object Search : Screens(route = "search", title = R.string.Search, icon = Icons.Rounded.SetMeal)
+    object Meal : Screens(route = "meal_screen", title = R.string.Search, icon = Icons.Rounded.SetMeal)
+    object Search : Screens(route = "search", title = R.string.home_fab_search_product)
     object Product : Screens(
         route = "product/{$ARG_PRODUCT_SOURCE}/{$ARG_PRODUCT_ID}",
         title = R.string.product

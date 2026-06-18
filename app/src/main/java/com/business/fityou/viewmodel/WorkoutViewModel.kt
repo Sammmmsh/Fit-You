@@ -66,7 +66,7 @@ class WorkoutViewModel @Inject constructor(
 
     var timeElapsed by mutableStateOf(0.0)
 
-    var timerText by mutableStateOf(getTimeStringFromDouble(timeElapsed))
+
 
     var selectedSetItem by mutableStateOf(ExerciseVolume())
 
@@ -86,13 +86,14 @@ class WorkoutViewModel @Inject constructor(
     var chartData = mutableStateListOf<Double>()
     var historyData = mutableStateListOf<ExerciseHistoryItem>()
 
-    var currentExercise by
-    if (isWorkoutStarted) mutableStateOf(ongoingWorkout.exerciseItems?.get(0)) else mutableStateOf(
-        workoutState.exerciseItems?.get(
-            0
-        )
-    )
+    var currentExercise: ExerciseItem? by mutableStateOf(null)
         private set
+
+    val timerText by derivedStateOf { getTimeStringFromDouble(timeElapsed) }
+    
+    fun resetTimer() {
+        timeElapsed = 0.0
+    }
 
     fun addDay(day: DayOfWeek) {
         selectedDays.add(day)
@@ -106,19 +107,26 @@ class WorkoutViewModel @Inject constructor(
         ongoingWorkout = workoutState.copy()
 
         isWorkoutStarted = true
+        currentSetItemIndex = 0
+        getFirstExercise()
     }
 
     fun stopWorkout() {
+        val durationInMinutes = (timeElapsed / 60).toInt().coerceAtLeast(1)
+        ongoingWorkout = ongoingWorkout.copy(duration = durationInMinutes)
+
         isWorkoutStarted = false
+        workoutState = ongoingWorkout // Update local state immediately
 
-        ongoingWorkout.exerciseItems?.forEach {
-            val historyItem = ExerciseHistoryItem(
-                exercise = it.exercise,
-                exerciseVolume = it.volume,
-            )
-
-            viewModelScope.launch {
-                repository.addExerciseHistory(historyItem,userId)
+        viewModelScope.launch {
+            repository.updateWorkout(workout = ongoingWorkout, workoutId = workoutId, uid = userId)
+            
+            ongoingWorkout.exerciseItems?.forEach {
+                val historyItem = ExerciseHistoryItem(
+                    exercise = it.exercise,
+                    exerciseVolume = it.volume,
+                )
+                repository.addExerciseHistory(historyItem, userId)
             }
         }
     }
@@ -159,9 +167,10 @@ class WorkoutViewModel @Inject constructor(
 
     fun getFirstExercise() {
         val workout = if (isWorkoutStarted) ongoingWorkout else workoutState
-        workout.exerciseItems?.let {
-            if (it.size > 0)
-                currentExercise = it[0]
+        if (workout.exerciseItems != null && workout.exerciseItems.size > 0) {
+            currentExercise = workout.exerciseItems[0]
+        } else {
+            currentExercise = null
         }
     }
 
@@ -201,6 +210,7 @@ class WorkoutViewModel @Inject constructor(
 
     fun selectDay(day: LocalDateTime) {
         calendarSelection = day
+        getWorkouts()
     }
 
     fun getUser(authState: AuthState) {
@@ -300,7 +310,7 @@ class WorkoutViewModel @Inject constructor(
                             workoutPlan = data,
                             loading = false
                         )
-
+                        getWorkouts() // Fetch workouts after plan is loaded
                         Log.e("Workout", workoutPlanState.workoutPlan?.name.toString())
                     } ?: kotlin.run {
                         workoutPlanState = workoutPlanState.copy(
@@ -342,10 +352,17 @@ class WorkoutViewModel @Inject constructor(
                         }
                     }
                     val selectedWorkout =
-                        workouts.first { it.dayOfWeek == calendarSelection.dayOfWeek }
+                        workouts.firstOrNull { it.dayOfWeek == calendarSelection.dayOfWeek }
 
-                    workoutState = selectedWorkout
-                    workoutId = selectedWorkout.dayOfWeek.toString()
+                    if (selectedWorkout != null) {
+                        workoutState = selectedWorkout
+                        workoutId = selectedWorkout.dayOfWeek.toString()
+                    } else {
+                        workoutState = Workout(dayOfWeek = calendarSelection.dayOfWeek)
+                        workoutId = ""
+                    }
+                    currentSetItemIndex = 0
+                    getFirstExercise()
 
                 }
             }

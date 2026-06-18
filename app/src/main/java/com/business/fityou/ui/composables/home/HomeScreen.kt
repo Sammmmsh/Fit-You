@@ -258,7 +258,8 @@ fun HomeScreen(
                     if (isWorkoutDay) {
                         TrainingCard(
                             modifier = Modifier.padding(horizontal = 15.dp),
-                            workoutPlan,
+                            workoutPlan = workoutPlan,
+                            currentDuration = workoutState.duration,
                             onClick = { navController.navigate(route = Screens.WorkoutDetails.route) }
                         )
 

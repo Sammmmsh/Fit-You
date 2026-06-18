@@ -136,7 +136,7 @@ fun WorkoutPlanSetUpScreen(workoutViewModel: WorkoutViewModel, navController: Na
                     if (workoutPlanName.isNotEmpty() && selectedDays.isNotEmpty()) {
                         val workoutPlan = WorkoutPlan(
                             name = workoutPlanName,
-                            workouts = selectedDays.toList() as ArrayList<DayOfWeek>,
+                            workouts = ArrayList(selectedDays.toList()),
                             difficulty = selectedDifficulty,
                             duration = duration
                         )

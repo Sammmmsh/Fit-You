@@ -36,6 +36,7 @@ class WorkoutTimerService: Service() {
     private inner class TimeTask (private var timeElapsed: Double) : TimerTask() {
         override fun run() {
             val intent = Intent(TIMER_UPDATED)
+            intent.setPackage(packageName)
             timeElapsed++
             updateNotification(timeElapsed)
             intent.putExtra(TIME_ELAPSED, timeElapsed)

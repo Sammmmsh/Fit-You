@@ -5,8 +5,8 @@ import androidx.lifecycle.MutableLiveData
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.QuerySnapshot
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.Firebase
+import com.google.firebase.firestore.firestore
 import com.business.fityou.data.models.*
 import com.business.fityou.domain.WorkoutRepository
 import com.business.fityou.util.Resource
@@ -29,32 +29,31 @@ class WorkoutRepositoryImpl @Inject constructor() : WorkoutRepository {
             try {
 
                 userCollection.document(uid).collection("workout_plan")
-                    .document(workoutPlanId).delete()
-                userCollection.document(uid).collection("workout_plan")
-                    .document(workoutPlanId).collection("workouts").get()
-                    .addOnCompleteListener {
-                        val docs = it.result.documents
+                    .document(workoutPlanId).delete().await()
+                
+                val workoutsSnapshot = userCollection.document(uid).collection("workout_plan")
+                    .document(workoutPlanId).collection("workouts").get().await()
+                
+                val docs = workoutsSnapshot.documents
 
-                        docs.forEach { doc ->
-                            userCollection.document(uid).collection("workout_plan")
-                                .document(workoutPlanId)
-                                .collection("workouts").document(doc.id).delete()
-                            userCollection.document(uid).collection("workout_plan")
-                                .document(workoutPlanId)
-                                .collection("workouts").document(doc.id).collection("exercises")
-                                .get()
-                                .addOnCompleteListener {
-                                    val exercises = it.result.documents
-                                    exercises.forEach { e ->
-                                        userCollection.document(uid).collection("workout_plan")
-                                            .document(workoutPlanId)
-                                            .collection("workouts").document(doc.id)
-                                            .collection("exercises").document(e.id).delete()
-                                    }
-
-                                }
-                        }
+                docs.forEach { doc ->
+                    userCollection.document(uid).collection("workout_plan")
+                        .document(workoutPlanId)
+                        .collection("workouts").document(doc.id).delete().await()
+                    
+                    val exercisesSnapshot = userCollection.document(uid).collection("workout_plan")
+                        .document(workoutPlanId)
+                        .collection("workouts").document(doc.id).collection("exercises")
+                        .get().await()
+                    
+                    val exercises = exercisesSnapshot.documents
+                    exercises.forEach { e ->
+                        userCollection.document(uid).collection("workout_plan")
+                            .document(workoutPlanId)
+                            .collection("workouts").document(doc.id)
+                            .collection("exercises").document(e.id).delete().await()
                     }
+                }
 
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -153,9 +152,10 @@ class WorkoutRepositoryImpl @Inject constructor() : WorkoutRepository {
         return withContext(Dispatchers.IO) {
             try {
 
+                val id = workoutPlanId ?: return@withContext Resource.Error("Workout plan ID not found")
                 val result =
                     userCollection.document(uid).collection("workout_plan")
-                        .document(workoutPlanId!!).collection("workouts").get()
+                        .document(id).collection("workouts").get()
                         .await()
 
                 Resource.Success(result)
@@ -193,9 +193,10 @@ class WorkoutRepositoryImpl @Inject constructor() : WorkoutRepository {
         return withContext(Dispatchers.IO) {
 
             try {
+                val id = workoutPlanId ?: return@withContext Resource.Error("Workout plan ID not found")
                 val result =
                     userCollection.document(uid).collection("workout_plan")
-                        .document(workoutPlanId!!).collection("workouts")
+                        .document(id).collection("workouts")
                         .document(workoutId)
                         .update("exerciseItems", FieldValue.arrayUnion(exerciseItem)).await()
                 Resource.Success(result)
@@ -217,9 +218,10 @@ class WorkoutRepositoryImpl @Inject constructor() : WorkoutRepository {
     ): Resource<Void> {
         return withContext(Dispatchers.IO) {
             try {
+                val id = workoutPlanId ?: return@withContext Resource.Error("Workout plan ID not found")
                 val result =
                     userCollection.document(uid).collection("workout_plan")
-                        .document(workoutPlanId!!).collection("workouts")
+                        .document(id).collection("workouts")
                         .document(workoutId).set(workout).await()
 
                 Resource.Success(result)
@@ -254,22 +256,19 @@ class WorkoutRepositoryImpl @Inject constructor() : WorkoutRepository {
         val sdf = SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.ENGLISH)
         val date = sdf.format(exercise.date).toString()
 
+        try {
+            userCollection.document(uid).collection("exercise_history")
+                .document(exercise.exercise?.name.toString())
+                .set(Exercise(name = exercise.exercise?.name.toString())).await()
 
-        userCollection.document(uid).collection("exercise_history")
-            .document(exercise.exercise?.name.toString())
-            .set(Exercise(name = exercise.exercise?.name.toString())).addOnCompleteListener {
-
-                if (it.isSuccessful) {
-
-                    userCollection.document(uid).collection("exercise_history")
-                        .document(exercise.exercise?.name.toString())
-                        .collection("data")
-                        .document(date)
-                        .set(exercise)
-                }
-
-            }.await()
-
+            userCollection.document(uid).collection("exercise_history")
+                .document(exercise.exercise?.name.toString())
+                .collection("data")
+                .document(date)
+                .set(exercise).await()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
 
     }
 
@@ -306,7 +305,6 @@ class WorkoutRepositoryImpl @Inject constructor() : WorkoutRepository {
                     error?.let {
                         data.value = Resource.Error(it.message.toString())
                         Log.e("Error", data.value?.message.toString())
-                        return@addSnapshotListener
                     }
 
         }

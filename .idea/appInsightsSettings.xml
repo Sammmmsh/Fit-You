@@ -9,9 +9,9 @@
               <option name="connection">
                 <ConnectionSetting>
                   <option name="appId" value="com.business.fityou" />
-                  <option name="mobileSdkAppId" value="1:839585157927:android:49324603e67b2de0200f02" />
-                  <option name="projectId" value="fityou-d1058" />
-                  <option name="projectNumber" value="839585157927" />
+                  <option name="mobileSdkAppId" value="1:29504183045:android:acdbe743f8e5872f64756c" />
+                  <option name="projectId" value="fityou-a1573" />
+                  <option name="projectNumber" value="29504183045" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
