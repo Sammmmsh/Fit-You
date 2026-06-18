@@ -36,8 +36,8 @@ fun EmptyWorkoutPlanView(
 
         Heading(text =
             stringResource(R.string.welcome) +
-                if (user?.userName == null) "!"
-                else " ${user.userName.replaceFirstChar { it.uppercase() }}!"
+                (if (user?.userName == null) "!"
+                else " ${user.userName.replaceFirstChar { it.uppercase() }}!")
         )
 
 

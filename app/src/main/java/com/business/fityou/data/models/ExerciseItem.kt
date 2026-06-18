@@ -55,9 +55,10 @@ enum class Equipments {
     Cable
 }
 
-val exercises = ArrayList<Exercise>()
+private val exercisesList = ArrayList<Exercise>()
 
 fun exercises(): List<Exercise> {
+    if (exercisesList.isNotEmpty()) return exercisesList
 
     val squat = Exercise("Squat", Equipments.Barbell, arrayListOf(Muscle.Quads, Muscle.Hamstrings))
     val benchPress =
@@ -81,7 +82,7 @@ fun exercises(): List<Exercise> {
         arrayListOf(Muscle.LateralDeltoids, Muscle.AnteriorDeltoids)
     )
 
-    exercises.addAll(
+    exercisesList.addAll(
         arrayListOf(
             squat,
             benchPress,
@@ -95,16 +96,16 @@ fun exercises(): List<Exercise> {
             calveRaise,
             legPress,
             overheadPress
-
         )
     )
 
-    return exercises
+    return exercisesList
 }
 
-val equipments = ArrayList<Equipment>()
+private val equipmentsList = ArrayList<Equipment>()
 
 fun equipments(): List<Equipment> {
+    if (equipmentsList.isNotEmpty()) return equipmentsList
 
     val dumbbells = Equipment(name = R.string.dumbbells, equipments = Equipments.Dumbbells)
     val barbell = Equipment(name = R.string.barbell, equipments = Equipments.Barbell)
@@ -117,7 +118,7 @@ fun equipments(): List<Equipment> {
     val rope = Equipment(name = R.string.rope, equipments = Equipments.Rope)
     val cable = Equipment(name = R.string.cable, equipments = Equipments.Cable)
 
-    equipments.addAll(
+    equipmentsList.addAll(
         arrayListOf(
             dumbbells,
             barbell,
@@ -131,12 +132,5 @@ fun equipments(): List<Equipment> {
             )
     )
 
-    return equipments
+    return equipmentsList
 }
-
-
-
-
-
-
-

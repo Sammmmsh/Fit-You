@@ -50,25 +50,25 @@ fun generateWorkouts(): ArrayList<Workout> {
         ExerciseItem(
             name = "squat",
             targetMuscles = arrayListOf(Muscle.Quads, Muscle.Hamstrings),
-            equipments = equipments[0],
+            equipments = equipments()[0],
             volume = volume
         ),
         ExerciseItem(
             name = "chest press",
             targetMuscles = arrayListOf(Muscle.Quads, Muscle.Hamstrings),
-           equipments = equipments[0],
+           equipments = equipments()[0],
             volume = volume
         ),
         ExerciseItem(
             name = "dips",
             targetMuscles = arrayListOf(Muscle.Quads, Muscle.Hamstrings),
-            equipments = equipments[0],
+            equipments = equipments()[0],
             volume = volume
         ),
         ExerciseItem(
             name = "rows",
             targetMuscles = arrayListOf(Muscle.Quads, Muscle.Hamstrings),
-            equipments = equipments[0],
+            equipments = equipments()[0],
             volume = volume
         )
 

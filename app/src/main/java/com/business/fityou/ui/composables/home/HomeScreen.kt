@@ -237,8 +237,9 @@ fun HomeScreen(
                     horizontalAlignment = Alignment.Start
                 ) {
 
+                    val displayName = user?.userName ?: userViewModel.signInState.data?.displayName ?: "User"
                     Heading(
-                        text = stringResource(R.string.hi)+" "+ user?.userName?.replaceFirstChar { it.uppercase() },
+                        text = stringResource(R.string.hi) + " " + displayName.replaceFirstChar { it.uppercase() },
                         modifier = Modifier.padding(start = 15.dp),
                     )
                     SubHeading(
@@ -275,7 +276,7 @@ fun HomeScreen(
                             iconEndClick = {
                                 openDialog = true
                             },
-                            isWorkoutDay = isTodayWorkoutDay
+                            isWorkoutDay = isWorkoutDay
                         )
                     } else {
                         RestDayView(

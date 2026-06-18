@@ -17,6 +17,8 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavHostController
 import com.business.fityou.R
+import com.business.fityou.data.models.Exercise
+import com.business.fityou.data.models.Equipment
 import com.business.fityou.data.models.equipments
 import com.business.fityou.ui.composables.FloatingAddButton
 import com.business.fityou.ui.composables.RegularButton
@@ -37,16 +39,23 @@ fun WorkoutDetailScreen(
     workoutViewModel: WorkoutViewModel
 ) = with(workoutViewModel) {
 
-    getWorkouts()
+    LaunchedEffect(Unit) {
+        if (workoutPlanState.workoutPlan == null) {
+            getWorkoutPlan()
+        }
+        getWorkouts()
+    }
 
     val state = workoutState
     val workoutPlan = workoutPlanState.workoutPlan
     var openDialog by remember { mutableStateOf(false) }
     var exBoxExpanded by remember { mutableStateOf(false) }
-    var selectedExercise by remember { mutableStateOf(userExercisesList[0]) }
-    val equipments = equipments().toSet().toList()
+    var selectedExercise by remember(userExercisesList) {
+        mutableStateOf(if (userExercisesList.isNotEmpty()) userExercisesList[0] else Exercise())
+    }
+    val equipmentList = equipments().toSet().toList()
     var eqBoxExpanded by remember { mutableStateOf(false) }
-    var selectedEquipment by remember { mutableStateOf(equipments[0]) }
+    var selectedEquipment by remember { mutableStateOf(if (equipmentList.isNotEmpty()) equipmentList[0] else Equipment()) }
     var setAmount by remember { mutableStateOf(1) }
 
     if (openDialog) {
@@ -79,9 +88,9 @@ fun WorkoutDetailScreen(
                     ) {
                         TextField(
                             readOnly = true,
-                            value = selectedExercise.name.toString(),
+                            value = selectedExercise.name ?: "",
                             onValueChange = { value ->
-                                selectedExercise = userExercisesList.first { it.name == value }
+                                selectedExercise = userExercisesList.firstOrNull { it.name == value } ?: Exercise()
                             },
                             label = { Text(stringResource(id = R.string.exercise), color = holoGreen) },
                             trailingIcon = {
@@ -123,9 +132,10 @@ fun WorkoutDetailScreen(
                             eqBoxExpanded = !eqBoxExpanded
                         }
                     ) {
+                        val equipmentNameRes = selectedEquipment.name
                         TextField(
                             readOnly = true,
-                            value = stringResource(selectedEquipment.name!!),
+                            value = if (equipmentNameRes != null) stringResource(equipmentNameRes) else "",
                             onValueChange = { },
                             label = { Text(stringResource(id = R.string.equipment), color = holoGreen) },
                             trailingIcon = {
@@ -147,14 +157,15 @@ fun WorkoutDetailScreen(
                                 eqBoxExpanded = false
                             }
                         ) {
-                            equipments.forEach { selectionOption ->
+                            equipmentList.forEach { selectionOption ->
+                                val optionNameRes = selectionOption.name
                                 DropdownMenuItem(
                                     onClick = {
                                         selectedEquipment = selectionOption
                                         eqBoxExpanded = false
                                     }
                                 ) {
-                                    Text(text = stringResource(selectionOption.name!!))
+                                    Text(text = if (optionNameRes != null) stringResource(optionNameRes) else "")
                                 }
                             }
                         }
@@ -211,12 +222,13 @@ fun WorkoutDetailScreen(
                         text = stringResource(id = R.string.add),
                         modifier = Modifier.align(Alignment.CenterHorizontally),
                         onClick = {
-                            openDialog = false
-                            addExerciseToWorkout(
-                                exerciseName = selectedExercise.name.toString(),
-                                equipments = selectedEquipment, sets = setAmount
-                            )
-                            getWorkouts()
+                            if (selectedExercise.name != null) {
+                                openDialog = false
+                                addExerciseToWorkout(
+                                    exerciseName = selectedExercise.name!!,
+                                    equipments = selectedEquipment, sets = setAmount
+                                )
+                            }
                         }
                     )
                 }
@@ -233,30 +245,34 @@ fun WorkoutDetailScreen(
 
         Column(
             Modifier
-                .fillMaxWidth()
-                .fillMaxHeight()
+                .fillMaxSize()
                 .padding(top = 20.dp),
-            verticalArrangement = Arrangement.spacedBy(30.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp),
             horizontalAlignment = Alignment.Start
         ) {
             Heading(
-                text = workoutPlan?.name?.replaceFirstChar { it.uppercase() }.toString(),
-                modifier = Modifier.padding(horizontal = 10.dp)
+                text = workoutPlan?.name?.replaceFirstChar { it.uppercase() } ?: "Workout",
+                modifier = Modifier.padding(horizontal = 16.dp)
             )
             WorkoutInfo(
-                duration = workoutPlan?.duration.toString(),
-                difficulty = Intermediate,
-                modifier = Modifier.padding(horizontal = 15.dp)
-            )
-            ExerciseItemsDisplay(
-                modifier = Modifier.height(500.dp),
-                workoutViewModel = workoutViewModel
+                duration = workoutPlan?.duration?.toString() ?: "0",
+                difficulty = workoutPlan?.difficulty ?: Intermediate,
+                modifier = Modifier.padding(horizontal = 16.dp)
             )
 
-            FloatingAddButton(Modifier.align(Alignment.CenterHorizontally), onClick = {
-                openDialog = true
-            })
+            Box(modifier = Modifier.weight(1f)) {
+                ExerciseItemsDisplay(
+                    modifier = Modifier.fillMaxSize(),
+                    workoutViewModel = workoutViewModel
+                )
+            }
 
+            FloatingAddButton(
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(bottom = 16.dp),
+                onClick = { openDialog = true }
+            )
         }
 
 

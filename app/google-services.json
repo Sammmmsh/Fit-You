@@ -1,33 +1,41 @@
 {
   "project_info": {
-    "project_number": "839585157927",
-    "project_id": "fityou-d1058",
-    "storage_bucket": "fityou-d1058.appspot.com"
+    "project_number": "29504183045",
+    "project_id": "fityou-a1573",
+    "storage_bucket": "fityou-a1573.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:839585157927:android:49324603e67b2de0200f02",
+        "mobilesdk_app_id": "1:29504183045:android:acdbe743f8e5872f64756c",
         "android_client_info": {
           "package_name": "com.business.fityou"
         }
       },
       "oauth_client": [
         {
-          "client_id": "839585157927-d84r02j6jnh41qs1o19gl7om3amd2uu8.apps.googleusercontent.com",
+          "client_id": "29504183045-b7tgdhtjnt5b9it1oecbuh6on8gm4ga4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.business.fityou",
+            "certificate_hash": "78ea0bfe75cf12a5f782d901329b41d5c9eb206d"
+          }
+        },
+        {
+          "client_id": "29504183045-ismnkgsrqi52fiu6sse7knc2digq2555.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDcJT347Ltns7cOvWapdxpbEqrIAR-5dGY"
+          "current_key": "AIzaSyCSPHSmtvLhne4Ygdn72PC_5Vp7foJLqjg"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "839585157927-d84r02j6jnh41qs1o19gl7om3amd2uu8.apps.googleusercontent.com",
+              "client_id": "29504183045-ismnkgsrqi52fiu6sse7knc2digq2555.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

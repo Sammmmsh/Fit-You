@@ -75,13 +75,13 @@ fun TrainingCard(
                 verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.Bottom)
             ) {
 
-                Heading(text = workoutPlan.name.toString(), modifier = Modifier)
+                Heading(text = workoutPlan.name ?: "", modifier = Modifier)
 
                 WorkoutInfo(
                     modifier = Modifier
                         .paddingFromBaseline(bottom = 20.dp),
-                    duration = (currentDuration ?: workoutPlan.duration).toString(),
-                    difficulty = workoutPlan.difficulty!!,
+                    duration = (currentDuration ?: workoutPlan.duration ?: 0).toString(),
+                    difficulty = workoutPlan.difficulty ?: DifficultyLevels.Beginner,
 
                     )
 

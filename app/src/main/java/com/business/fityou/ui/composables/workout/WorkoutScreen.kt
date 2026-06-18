@@ -148,7 +148,9 @@ fun WorkoutScreen(
         }
     }
 
-    getWorkouts()
+    LaunchedEffect(calendarSelection) {
+        getWorkouts()
+    }
 
     Surface(
         modifier = Modifier

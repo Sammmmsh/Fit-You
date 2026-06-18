@@ -339,6 +339,8 @@ class WorkoutViewModel @Inject constructor(
 
     fun getWorkouts() = viewModelScope.launch {
 
+        if (userId.isEmpty()) return@launch
+
         when (val result = repository.getWorkouts(userId)) {
 
             is Resource.Success -> {
@@ -359,7 +361,7 @@ class WorkoutViewModel @Inject constructor(
                         workoutId = selectedWorkout.dayOfWeek.toString()
                     } else {
                         workoutState = Workout(dayOfWeek = calendarSelection.dayOfWeek)
-                        workoutId = ""
+                        workoutId = calendarSelection.dayOfWeek.toString()
                     }
                     currentSetItemIndex = 0
                     getFirstExercise()
@@ -369,7 +371,14 @@ class WorkoutViewModel @Inject constructor(
 
             is Resource.Loading -> {}
 
-            is Resource.Error -> {}
+            is Resource.Error -> {
+                // If it fails because plan ID is not found, try to fetch the plan first
+                if (result.message?.contains("ID not found") == true) {
+                    repository.getWorkoutPlan(userId)
+                    // We don't call getWorkouts() recursively here to avoid issues
+                    // The LaunchedEffect in the UI or getWorkoutPlan finishing will trigger a refresh
+                }
+            }
         }
 
     }
@@ -390,7 +399,7 @@ class WorkoutViewModel @Inject constructor(
                 workoutsList.add(
                     Workout(
                         dayOfWeek = it,
-                        duration = workoutPlan.duration
+                        duration = 0
                     )
                 )
             }
@@ -445,8 +454,13 @@ class WorkoutViewModel @Inject constructor(
                 volume.add(ExerciseVolume(set = i))
             }
 
+            // Fallback to searching the static list if userExercisesList is empty
+            val exercise = userExercisesList.firstOrNull { it.name == exerciseName }
+                ?: exercises().firstOrNull { it.name == exerciseName }
+                ?: return@launch
+
             val exerciseItem = ExerciseItem(
-                exercise = userExercisesList.first { it.name == exerciseName },
+                exercise = exercise,
                 name = exerciseName,
                 equipments = equipments,
                 sets = sets,
@@ -455,21 +469,21 @@ class WorkoutViewModel @Inject constructor(
 
             workoutState.exerciseItems?.let {
                 exerciseItems.addAll(it)
-
             }
 
             exerciseItems.add(exerciseItem)
 
             val workout = Workout(
-                name = workoutState.name,
+                name = workoutState.name ?: workoutPlanState.workoutPlan?.name,
                 targetMuscleGroups = workoutState.targetMuscleGroups,
-                duration = workoutState.duration,
-                dayOfWeek = workoutState.dayOfWeek,
+                duration = workoutState.duration ?: 0,
+                dayOfWeek = workoutState.dayOfWeek ?: calendarSelection.dayOfWeek,
                 exerciseItems = exerciseItems
             )
 
+            workoutState = workout
             repository.updateWorkout(workout = workout, workoutId = workoutId, uid = userId)
-
+            getFirstExercise()
 
         }
 
@@ -485,7 +499,9 @@ class WorkoutViewModel @Inject constructor(
             exerciseItems = exercises as ArrayList<ExerciseItem>?
         )
 
+        workoutState = workout
         repository.updateWorkout(workoutId = workoutId, workout = workout, uid = userId)
+        getFirstExercise()
 
 
     }

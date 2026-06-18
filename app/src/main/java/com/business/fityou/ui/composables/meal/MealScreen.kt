@@ -46,11 +46,13 @@ import com.business.fityou.viewmodel.WorkoutViewModel
 fun MealScreen(
     navController: NavController,
     viewModel: MealViewModel = hiltViewModel(),
+    userViewModel: UserViewModel = hiltViewModel(),
     workoutViewModel: WorkoutViewModel
 ) {
     val products by viewModel.products.collectAsState(initial = emptyList())
     val stats by  viewModel.stats.collectAsState()
     val user = workoutViewModel.user
+    val authUser = userViewModel.signInState.data
 
     Scaffold(
         backgroundColor = MaterialTheme.colors.background,
@@ -69,7 +71,7 @@ fun MealScreen(
                 .padding(padding)
                 .padding(horizontal = 16.dp)
         ) {
-            item { HomeHeader(navController, user?.userName ?: "User") }
+            item { HomeHeader(navController, user?.userName ?: authUser?.displayName ?: "User") }
             item { Spacer(modifier = Modifier.size(25.dp)) }
             item { CaloriesProgress(stats) }
             item { Spacer(modifier = Modifier.size(25.dp)) }

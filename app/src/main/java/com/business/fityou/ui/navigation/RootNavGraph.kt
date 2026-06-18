@@ -41,11 +41,15 @@ fun RootNavGraph(
 
     LaunchedEffect(Unit) { userViewModel.checkLoginState() }
     LaunchedEffect(userViewModel.signInState) {
-        if (userViewModel.signInState.success) navController.navigate(MAIN_ROUTE) {
-            popUpTo(ROOT_ROUTE) { inclusive = true }
-        }
-        else navController.navigate(LOGIN_ROUTE) {
-            popUpTo(ROOT_ROUTE) { inclusive = true }
+        if (userViewModel.signInState.success) {
+            workoutViewModel.getUser(userViewModel.signInState)
+            navController.navigate(MAIN_ROUTE) {
+                popUpTo(ROOT_ROUTE) { inclusive = true }
+            }
+        } else {
+            navController.navigate(LOGIN_ROUTE) {
+                popUpTo(ROOT_ROUTE) { inclusive = true }
+            }
         }
     }
 

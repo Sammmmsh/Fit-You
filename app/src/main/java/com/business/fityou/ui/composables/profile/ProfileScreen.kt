@@ -69,14 +69,15 @@ fun ProfileScreen(
     workoutViewModel: WorkoutViewModel
 ) {
     val user = workoutViewModel.user
+    val authUser = userViewModel.signInState.data
     val statusBarHeight = 56.dp
 
     Surface(modifier = Modifier.fillMaxSize(), color = darkBlue) {
         CollapsibleHeader(
             scrollState = rememberScrollState(),
             profilePic = Icons.Rounded.Person,
-            name = user?.userName ?: "Guest User",
-            position = user?.userEmail ?: "No email provided",
+            name = user?.userName ?: authUser?.displayName ?: "User",
+            position = user?.userEmail ?: authUser?.email ?: "No email provided",
             backgroundModifier = Modifier.background(darkBlue),
             heightRange = statusBarHeight to 200.dp
         ) {

@@ -115,7 +115,11 @@ fun NavGraphBuilder.mainNavGraph(
         }
 
         composable(route = Screens.Meal.route) {
-            MealScreen(navController = navController, workoutViewModel = workoutViewModel)
+            MealScreen(
+                navController = navController,
+                userViewModel = userViewModel,
+                workoutViewModel = workoutViewModel
+            )
             bottomBarState.value = true
         }
 
